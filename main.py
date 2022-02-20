@@ -1,5 +1,4 @@
 from selenium import webdriver
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -22,11 +21,11 @@ class WebDriver:
         self.PATH = "./chromedriver"
         self.options = Options()
         # self.options.binary_location = "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"
-        self.options.add_argument("--headless")
-        self.options.add_argument("--disable-gpu")
+        #self.options.add_argument("--headless")
+        #self.options.add_argument("--disable-gpu")
 
-        #self.driver = webdriver.Chrome(self.PATH, options=self.options)
-        self.driver = webdriver.Chrome(self.PATH)
+        self.driver = webdriver.Chrome(self.PATH, options=self.options)
+        #self.driver = webdriver.Chrome(self.PATH)
 
         self.location_data["name"] = "NA"
         self.location_data["rating"] = "NA"
@@ -59,6 +58,7 @@ class WebDriver:
         except:
             print("Errore durante il click sul bottone Accetta cookie")
 
+            self.driver.quit()
             return False
 
         return True
@@ -68,12 +68,13 @@ class WebDriver:
     def clickButtonRestaurant(self):
 
         try:
-            #abbiamo cinque bottoni con la classe vtjJ8d-ZjTkM-mJSDk-LgbsSe NIyLF-haAclf, devo selezionare sempre il secondo
+            #abbiamo cinque bottoni con la classe NIyLF-haAclf, devo selezionare sempre il secondo
 
-            self.driver.find_elements_by_css_selector('button.vtjJ8d-ZjTkM-mJSDk-LgbsSe')[1].click()
+            self.driver.find_elements_by_css_selector('button.NIyLF-haAclf')[2].click()
         except:
             print("Errore durante il click sul bottone dei ristoranti del luogo selezionato")
 
+            self.driver.quit()
             return False
 
         return True
@@ -90,6 +91,7 @@ class WebDriver:
         except:
             print("Errore durante il recupero dei ristoranti nei paraggi")
 
+            self.driver.quit()
             return False
 
         return True
@@ -105,18 +107,16 @@ class WebDriver:
                 #apro tendina
                 self.driver.find_element_by_css_selector('div.hH0dDd').click()
 
-                self.flagOpenCloseTimeOtherWindow = False
-
             else:
 
                 #apro nuova finestra e setto un flag
                 self.driver.find_elements_by_css_selector('button.CsEnBe')[1].click()
-
                 self.flagOpenCloseTimeOtherWindow = True
 
         except:
             print("Errore durante l'apertura degli orari del ristorante")
 
+            self.driver.quit()
             return False
 
         return True
@@ -124,12 +124,12 @@ class WebDriver:
 
     #visualizzo tutte le recensioni del ristorante
     def clickAllReviewsButton(self):
-
         try:
-            self.driver.find_elements_by_css_selector("button.widget-pane-link")[0].click()
+            self.driver.find_elements_by_css_selector("button.Yr7JMd-pane-hSRGPd")[0].click()
         except:
-            print("Errore durante la visualizzazione delle recensioni del ristorante")
+            print("Impossibile aprire le recensioni del ristorante")
 
+            self.driver.quit()
             return False
 
         return True
@@ -170,7 +170,7 @@ class WebDriver:
 
         try:
 
-            totalReviews = self.driver.find_elements_by_css_selector("button.widget-pane-link")[0]
+            totalReviews = self.driver.find_elements_by_css_selector("button.Yr7JMd-pane-hSRGPd")[0]
 
         except:
 
@@ -248,12 +248,14 @@ class WebDriver:
         except:
             print("Errore durante il prelievo degli orari del ristorante")
 
+            self.driver.quit()
             return False
 
         #se gli orari sono in un'altra finestra torno indietro
         if self.flagOpenCloseTimeOtherWindow:
-            self.driver.find_element_by_css_selector('div.brSEs-LgbsSe-haAclf').click()
+            self.driver.find_element_by_css_selector('button.VfPpkd-icon-LgbsSe').click()
             self.flagOpenCloseTimeOtherWindow = False
+            self.sleep(5)
 
         return time
 
@@ -281,17 +283,7 @@ class WebDriver:
     def scrollThePage(self, review = False):
 
         try:
-            WebDriverWait(self.driver, 60).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.section-scrollbox')))
-
-        except:
-            print("Impossibile scrollare la pagina")
-
-        try:
-            if review:
-                limitCount = 10
-            else:
-                limitCount = 3
-
+            limitCount = 5
             counter = 0
 
             while (counter < limitCount):
@@ -307,10 +299,11 @@ class WebDriver:
                     print("Errore durante la scroll numero " + str(counter))
                     pass
 
-                self.sleep(0.5)
+                self.sleep(3)
                 counter = counter + 1
         except:
             print("Errore durante la scroll")
+            self.driver.quit()
 
             return False
 
@@ -389,16 +382,7 @@ class WebDriver:
             self.driver.quit()
             return (self.location_data)
 
-        delay = 5;
-
-        try:
-            WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.nCP5yc')))
-
-        except:
-            print("Impossibile accettare i cookie")
-
-            self.driver.quit()
-            return (self.location_data)
+        self.sleep(0.1)
 
         #click per accettare i cookie
         clickAllowCookie = self.clickAllowCookie()
@@ -406,14 +390,7 @@ class WebDriver:
             return (self.location_data)
 
 
-        try:
-            WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.vtjJ8d-ZjTkM-mJSDk-LgbsSe')))
-
-        except:
-            print("Impossibile visualizzare i ristoranti")
-
-            self.driver.quit()
-            return (self.location_data)
+        self.sleep(5)
 
 
         #click sul bottone per la ricerca dei ristoranti
@@ -422,14 +399,7 @@ class WebDriver:
             return (self.location_data)
 
 
-        try:
-            WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'a.a4gq8e-aVTXAb-haAclf-jRmmHf-hSRGPd')))
-
-        except:
-            print("Impossibile creare una lista di ristoranti")
-
-            self.driver.quit()
-            return (self.location_data)
+        self.sleep(5)
 
 
         #restituisce la lista dei ristoranti nei paraggi
@@ -439,7 +409,6 @@ class WebDriver:
 
 
         counter = 0
-        limit = 10
 
         #ciclo i risoranti nei paraggi
         for restaurant in restaurantList:
@@ -447,132 +416,52 @@ class WebDriver:
             if not restaurant:
                 continue
 
-            #aspetto che l'elemento carichi
-            try:
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.section-scrollbox')))
-
-            except:
-                print("Impossibile caricare la lista dei ristoranti")
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
-                continue
-
-
             #scrolla il div con la lista dei ristoranti
-            scrollThePage = self.scrollThePage(False)
-            if scrollThePage == False:
-                continue
+            self.scrollThePage(False)
 
-
-            try:
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'a.a4gq8e-aVTXAb-haAclf-jRmmHf-hSRGPd')))
-
-            except:
-                print("Impossibile selezionare il ristorante")
-
-                counter = counter + 1
-                continue
-
-
+            self.sleep(5)
             #faccio il click sul ristorante
             self.driver.find_elements_by_css_selector('a.a4gq8e-aVTXAb-haAclf-jRmmHf-hSRGPd')[counter].click()
 
-
-            try:
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'h1.x3AX1-LfntMc-header-title-title')))
-
-            except:
-                print("Impossibile prendere il nome del ristorante")
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
-                continue
-
+            self.sleep(5)
 
             #prende il nome del ristorante
             getNameRestaurant = self.getNameRestaurant()
             if getNameRestaurant == False:
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
                 continue
 
 
             #prende le recensioni medie del ristorante
             getAvgRatingRestaurant = self.getAvgRatingRestaurant()
             if getAvgRatingRestaurant == False:
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
                 continue
 
 
             #prende il numero di recensioni del ristorante
             getTotalReviewRestaurant = self.getTotalReviewRestaurant()
             if getTotalReviewRestaurant == False:
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
                 continue
 
 
             #prende l'indirizzo del ristorante
             getLocationRestaurant = self.getLocationRestaurant()
             if getLocationRestaurant == False:
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
                 continue
 
 
             #prende il numero di telefono del ristorante
             getPhoneNumberRestaurant = self.getPhoneNumberRestaurant()
             if getPhoneNumberRestaurant == False:
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
                 continue
 
 
             #prende il sito internet del ristorante
             getWebSiteRestaurant = self.getWebSiteRestaurant()
             if getWebSiteRestaurant == False:
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
                 continue
 
 
-            #controllo se gli orari sono in una nuova finestra o se si apre una tendina
-            if len(self.driver.find_elements_by_css_selector('div.hH0dDd')):
-                #non sono in un'altra finestra
-                self.flagOpenCloseTimeOtherWindow = False
-                selector = "div.hH0dDd"
-
-            else:
-                #sono in un'alta finestra
-                self.flagOpenCloseTimeOtherWindow = True
-                selector = "button.CsEnBe"
-
-
-            try:
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, selector)))
-
-            except:
-                print("Impossibile visualizzare gli orari di apertura del ristorante")
-
-                if self.flagOpenCloseTimeOtherWindow:
-                    self.driver.find_element_by_css_selector('div.brSEs-LgbsSe-haAclf').click()
-
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.xo8g7')))
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
-                continue
+            self.sleep(5)
 
 
             #apro gli orari del ristorante
@@ -580,120 +469,39 @@ class WebDriver:
             if clickOpenCloseTime == False:
                 continue
 
-            try:
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'th.y0skZc-header')))
 
-            except:
-                print("Impossibile aprire gli orari di apertura del ristorante")
-
-                if self.flagOpenCloseTimeOtherWindow:
-                    self.driver.find_element_by_css_selector('div.brSEs-LgbsSe-haAclf').click()
-
-                WebDriverWait(self.driver, delay).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, 'button.xo8g7')))
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
-                continue
+            self.sleep(5)
 
 
             #prendo i giorni e gli orari di apertura-chiusura del ristorante
             getLocationOpenCloseTime = self.getLocationOpenCloseTime()
             if getLocationOpenCloseTime == False:
-                print("Impossibile visualizzare gli orari di apertura del ristorante")
-
-                if self.flagOpenCloseTimeOtherWindow:
-                    self.driver.find_element_by_css_selector('div.brSEs-LgbsSe-haAclf').click()
-
-                WebDriverWait(self.driver, delay).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, 'button.xo8g7')))
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
                 continue
 
 
-            try:
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.widget-pane-link')))
-
-            except:
-                print("Impossibile visualizzare le recensioni del ristorante")
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
-                continue
+            self.sleep(5)
 
 
             #visualizzo tutte le recensioni del ristorante
             clickAllReviewsButton  = self.clickAllReviewsButton()
             if clickAllReviewsButton == False:
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
                 continue
 
 
-            try:
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.section-scrollbox')))
-
-            except:
-                print("Impossibile visualizzare le recensioni")
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.xo8g7')))
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
-                continue
-
+            self.sleep(5)
 
             #scrolla il div con le recensioni di un ristorante
-            scrollThePage = self.scrollThePage(True)
-            if scrollThePage == False:
-                print("Impossibile scrollare le recensioni")
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                WebDriverWait(self.driver, delay).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, 'button.xo8g7')))
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
-                continue
+            self.scrollThePage(True)
 
             #espande tutte le recensioni lunghe
             expandAllReviews = self.expandAllReviews()
             if expandAllReviews == False:
-                print("Impossibile espandere le recensioni")
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.xo8g7')))
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
                 continue
 
 
             #scrap delle recensioni del ristorante
             getReviewsData = self.getReviewsData()
             if getReviewsData == False:
-                print("Impossibile prelevare le recensioni")
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.xo8g7')))
-
-                self.driver.find_element_by_css_selector('button.xo8g7').click()
-
-                counter = counter + 1
                 continue
 
 
@@ -713,23 +521,16 @@ class WebDriver:
 
             counter = counter + 1
 
-            if len(restaurantDict) >= limit:
-                break
-
-            try:
-                WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'button.xo8g7')))
-
-            except:
-                print("Impossibile tornare indietro")
 
             self.driver.find_element_by_css_selector('button.xo8g7').click()
 
-            self.sleep(2)
+
+            self.sleep(5)
 
 
         self.driver.quit()
 
-        return restaurantDict
+        return (restaurantDict)
 
 
 url = "https://www.google.it/maps/@45.0244498,7.6355183,17z"
